@@ -1,0 +1,2 @@
+// BC functions moved into NACA.udf under #ifdef __okl__.
+// This file is intentionally left as a placeholder.

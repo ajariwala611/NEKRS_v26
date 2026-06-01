@@ -1,0 +1,84 @@
+userSections = CASEDATA
+
+[OCCA]
+backend = CUDA
+deviceNumber = LOCAL-RANK
+
+[GENERAL]
+udf = NACA_ascent.udf
+
+polynomialOrder = 7
+advectionSubCyclingSteps = 4
+
+# Uncomment for restart:
+# startFrom = NACA0.restart+time=0.0+int
+
+stopAt = endTime
+endTime = 20.0
+
+dt = targetCFL=2 + max=1e-4 + initial=1e-5
+timeStepper = tombo2
+
+writeControl = simulationTime
+writeInterval = 0.05
+
+checkpointControl = simulationTime
+checkpointInterval = 1.0
+
+scalars = k, tau
+
+[PROBLEMTYPE]
+equation = navierStokes+variableViscosity
+
+[MESH]
+connectivityTol = 0.1
+
+[FLUID PRESSURE]
+residualTol = 1e-04
+initialGuess = projectionAconj+nVector=30
+# Avoid Schwarz (ASM/RAS) setup path, which is where your stack trace crashes.
+smootherType = Jac+Cheby+degree=2
+
+[FLUID VELOCITY]
+# v23 map was:
+# codedFixedValue,fixedGradient,zeroValue,codedFixedValue,fixedGradient,none,none
+boundaryTypeMap = udfDirichlet,zeroNeumann,zeroDirichlet,udfDirichlet,zeroNeumann,none,none
+density = 1.0
+viscosity = 1/400000
+residualTol = 1e-06
+
+[SCALAR K]
+boundaryTypeMap = udfDirichlet,zeroNeumann,udfDirichlet,udfDirichlet,zeroNeumann,none,none
+residualTol = 1e-08
+
+[SCALAR TAU]
+boundaryTypeMap = udfDirichlet,zeroNeumann,udfDirichlet,udfDirichlet,zeroNeumann,none,none
+residualTol = 1e-08
+
+[CASEDATA]
+U_inf = 1.0
+AoA = 11.0
+Re = 400000.0
+rho = 1.0
+
+# Reference quantities for coefficients
+refChord = 1.0
+# If refSpan <= 0, span is auto-computed from mesh z-extent
+refSpan = 0.0
+
+# Boundary IDs in your 7-entry boundaryTypeMap
+inletBid1 = 1
+inletBid2 = 4
+wallBid = 3
+
+# Inflow turbulence setup for k-tau initialization/BC
+turbulenceIntensity = 0.01
+eddyViscosityRatio = 10.0
+kWall = 0.0
+tauWall = 0.0
+
+# Force history write frequency (in converged time steps)
+forceWriteIntervalSteps = 1
+
+# Ascent in-situ processing cadence (every N converged steps)
+processAscentYamlFrequency = 50
